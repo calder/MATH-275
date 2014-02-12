@@ -179,7 +179,7 @@ The MSE converges on the MSE of the original estimator as $N \rightarrow \infty$
 \begin{enumerate}
 \item
 \begin{align}
-	E[X_i] &= \int_0^{1/\theta} x 2 \theta^2 x \dx = \dfrac{2}{3 \theta} \notag
+	E[X_i] &= \int_0^{1/\theta} x 2 \theta^2 x \dx = \dfrac{2}{3 \; \theta} \notag
 \end{align}
 
 \item
@@ -188,13 +188,13 @@ The MSE converges on the MSE of the original estimator as $N \rightarrow \infty$
 	&\hspace{4em} MSE[T] &= B[T]^2 + V[T]
 	\notag\\
 	&= \dfrac{E[X_i]}{9} + \dfrac{E[X_i]}{9} + \dfrac{E[X_i]}{3} - \dfrac{1}{\theta}
-	&&= \dfrac{17^2}{27^2 \theta^2} + \int_0^{1/\theta} x^2 2 \theta^2 x \dx
+	&&= \dfrac{17^2}{27^2 \; \theta^2} + \int_0^{1/\theta} x^2 2 \theta^2 x \dx
 	\notag\\
-	&= \dfrac{10}{27 \theta} - \dfrac{1}{\theta}
-	&&= \dfrac{17^2}{27^2 \theta^2} + \dfrac{1}{2 \theta^2}
+	&= \dfrac{10}{27 \; \theta} - \dfrac{1}{\theta}
+	&&= \dfrac{17^2}{27^2 \; \theta^2} + \dfrac{1}{2 \; \theta^2}
 	\notag\\
-	&= -\dfrac{17}{27 \theta}
-	&&= \dfrac{1307}{1458 \theta^2}
+	&= -\dfrac{17}{27 \; \theta}
+	&&= \dfrac{1307}{1458 \; \theta^2}
 	\notag
 \end{align}
 
@@ -217,15 +217,75 @@ Let $T\prm = \frac{27}{10} T$.
 
 
 \item[1.]
+\begin{enumerate}
+\item The statement is about the {\it mean}, not individual cows.
+\item True.
+\item $\mu$ is either in the interval or it isn't. We don't know which it is, but that doesn't make it a random variable.
+\item True.
+\item That would be true of the actual mean, but all we have is a sample mean.
+\end{enumerate}
 
 
 \item[2.]
+\begin{align}
+	\mu_{sample} \pm 2 \sigma_{sample}
+	&= \mu \pm 2 \dfrac{\sigma}{\sqrt{n}} \notag\\
+	&= 538 \pm 2 \dfrac{116}{\sqrt{34}} \notag\\
+	&= 538 \pm 39.8 \notag
+\end{align}
 
 
+\newpage
 \item[3.]
+\begin{enumerate}
+\item
+\begin{minipage}{0.3\textwidth}
+$210 \pm 8.2 \dfrac{mg}{dL}$
+\end{minipage}
+\begin{minipage}{0.6\textwidth}
+\begin{code}
+sigma = 50
+sample.size = 100
+sample.mean = 210
+qnorm(0.05, sample.mean, sigma/sample.size^0.5)
+qnorm(0.95, sample.mean, sigma/sample.size^0.5)
+\end{code}
+\end{minipage}
+
+\item
+\hspace{0em}\\
+\begin{minipage}{0.4\textwidth}
+\begin{align}
+	error &= -Q\left(\dfrac{1-confidence}{2}\right) \; \dfrac{\sigma}{\sqrt{n}} \notag\\
+	n &= Q\left(\dfrac{1-confidence}{2}\right)^2 \dfrac{\sigma^2}{error^2} \notag\\
+	n &= 96 \notag
+\end{align}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+\begin{code}
+f = function (conf, err, sigma) {
+  qnorm((1-conf)/2)^2 * sigma^2 / err^2
+}
+f(0.95, 10, 50)
+\end{code}
+\end{minipage}
+
+\item
+\hspace{0em}\\
+\begin{minipage}{0.4\textwidth}
+\hspace{2.8em}$n = 166$
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+\begin{code}
+f(0.99, 10, 50)
+\end{code}
+\end{minipage}
+
+\end{enumerate}
 
 
 \item[5.]
+4 times larger.
 
 
 \end{enumerate}
