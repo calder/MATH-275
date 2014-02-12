@@ -1,0 +1,213 @@
+\documentclass{article}
+\usepackage{algorithm2e}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{color}
+\usepackage{enumerate}
+\usepackage{fancyvrb}
+\usepackage{framed}
+\usepackage{fullpage}
+\usepackage{xspace}
+
+% Logical operators
+\def\NOT{\neg}
+\def\AND{\wedge}
+\def\OR{\vee}
+\def\XOR{\otimes}
+\def\IMP{\Rightarrow}
+\def\BIMP{\Leftarrow}
+\def\IFF{\Leftrightarrow}
+\def\LIFF{\hspace{1em}\Longleftrightarrow\hspace{1em}}
+\def\TRUE{\ensuremath\mathtt{true}}
+\def\FALSE{\ensuremath\mathtt{false}}
+
+% Layout
+\def\anchor{\hspace{0em}\vspace*{-1.25em}\\}
+\def\return{\hspace{0em}\\}
+
+% Environments
+\DefineVerbatimEnvironment{code}{Verbatim}{frame=single,commandchars=\\\{\},codes={\catcode`$=3\catcode`^=7}}
+
+% Shortcuts
+\def\field#1{\mathbb{#1}}
+\def\prm{^\prime}
+\def\<{\langle}
+\def\>{\rangle}
+\def\eps{\epsilon}
+\def\vare{\varepsilon}
+\def\nil{\varnothing}
+\def\G{{\sf Greedy}\xspace}
+\def\O{{\sf OPT}\xspace}
+
+\begin{document}
+
+
+\noindent
+\begin{center}
+  \framebox {
+    \vbox {
+      \hbox to 6.28in {\bf  CS 275: Statistical Inference \hfill Winter 2012}
+      \hbox to 6.28in {\it Problem Set \#1 \hfill Calder Coalson}
+      \hbox to 6.28in {\sc \footnotesize \hfill In collaboration with Daniel Alibi \& David Anderson \hfill}
+      \hbox to 6.28in {\sc \footnotesize \hfill With help from Carissa Knipe \hfill}}}
+\end{center}\vspace{0em}
+
+
+\begin{enumerate}
+
+
+\item (Daniel) See group submission.
+%\begin{enumerate}
+%\item
+%\item
+%\end{enumerate}
+
+
+\item (David) Our group came up with multiple algorithms and couldn't come to a consensus on which one was the most intuitive. I like this one though:
+\begin{description}
+
+\item[Algorithm:]
+Given a graph $G = \langle V, E \rangle$ and a partition $\langle S, V-S \rangle$:
+\begin{code}
+$S := \nil$
+forever
+   if there exists a vertex in $V-S$ with more uncut than cut edges
+      add it to $S$
+   else if there exists a vertex in $S$ with more uncut than cut edges
+      remove it from $S$
+   else
+      break
+return $S$
+\end{code}
+
+\item[Correctness:]
+Each iteration of the loop increases the size of the cut by at least 1, so the algorithm will terminate. Furthermore, each vertex must have at least half its edges cut or the algorithm would not have terminated, so
+$$|\G| \geq \frac{1}{2} |E| \geq \frac{1}{2} |\O|.$$
+
+\end{description}
+
+
+\item (Calder)
+\begin{enumerate}
+
+\item
+Consider the following input strings:
+$$S = \{
+	1^{n+1} 2^n,\;
+	2^n 1^{n+1},\;
+	0 1^n
+\}.$$
+\G will immediately join the 1s of the first two strings, thereby eliminating the equally good (to within $\eps$) join on the 2s, as well as a {\it second} equally good join to the third string. This leaves us with
+\begin{align}
+	\lim_{n \rightarrow \infty} \dfrac{|\G(S)|}{|\O(S)|}
+	&= \lim_{n \rightarrow \infty} \dfrac{|0 1^n 2^n 1^{n+1} 2^n|}{|0 1^{n+1} 2^n 1^{n+1}|} \notag\\
+	&= \lim_{n \rightarrow \infty} \dfrac{4n + 2}{3n + 3} \notag\\
+	&= 4/3. \notag
+\end{align}
+
+\newpage
+\item
+Here are some things we thought about:
+\begin{description}
+
+\item[Sin:] With every join, \G commits some measurable {\bf sin} (not to be confused with $\sin$). If $S_i$ is the set of strings going into the $i$th iteration of \G's loop, then the sin of that iteration ${\sf sin}(i)$ is defined as
+$${\sf sin}(i) = |\O(S_{i+1})| - |\O(S_i)|.$$
+Any join of size $n$ commits at most $n$ sin.
+
+\item[Potential Sin:] The {\bf potential sin} of an input string is
+$${\sf potsin}(s) = \min\left(\text{the largest potential join involving $s$, $\left\lfloor\frac{|s|}{2}\right\rfloor$}\right)$$
+After greedy joins two strings $s_1$ and $s_2$ and commits $n$ sin in the process, the resulting string $s_{12}$ has potential sin
+$${\sf potsin}(s_{12}) = \min\left({\sf potsin}(s_1), {\sf potsin}(s_2)\right) - n$$
+
+\item[Critical Characters:] A prefix or suffix $\sigma_i$ of string $s_i$ is said to be {\bf critical} if and only if $|\O(S)| > |\O(S\prm)|$ where
+$$S\prm = \text{$S$ with $\sigma_i$ removed from $s_i$}$$
+
+\item[Liabilities:] We can think of every string $s = c_1 c_2 \cdots c_{k-1} c_k$, as a set of $2k+2$ segment-liability pairs where each pair is of the form
+$$(c_1 \cdots c_i, c_{i+1} \cdots c_k) \hspace{1em}\text{or}\hspace{1em} (c_{i+1} \cdots c_k, c_1 \cdots c_i).$$
+
+\end{description}
+
+\item
+Let $\Sigma = \{ c_1, \ldots, c_k \}$ be the alphabet of the input set, and define the binary encoding of a given $c_i$ as
+    $$\xi_i = 0^i (01)^{k+1-i} 1^i.$$
+Let $\sigma_i$ be the binary encoding of the $i$th input string $s_i$, defined by concatenating the binary encodings of each character of $s_i$.
+
+With this encoding, we want to show that $\sigma$ and $\sigma\prm$ will overlap by $n$ encoded characters if and only if $s$ and $s\prm$ overlap by $n$ real characters. Consider an arbitrary character $b(\xi_i) = 0^i (01)^{k+1-i} 1^i$. This could potentially join a string at the beginning, end, or middle.
+\begin{enumerate}
+	\item $0^i(01)^{k+1-i}1^i$ cannot join the end of another string, because no strings end with $0, 00, \ldots, 0^{i+1}$ or any other partial substring short of $0^i (01)^{k+1-i} 1^i$. The only place you find $i+1$ consecutive 0s is followed by the rest of $b(\xi_i)$.
+	\item It cannot join the beginning of another string, because no strings start with $1, 11, \ldots, 1^{i+1}$, or any other substring. Once again, the only place you find $i+1$ consecutive 1s is preceded by a complete $b(\xi_i)$.
+	\item Since the $i+1$ zeros will {\it only} match other beginning-of-character zeros and the $(01)^{k+1-i}11$ and will only match other $b(\xi_i)$s, we know that $b(\xi_i)$ will only internally match itself.
+\end{enumerate}
+Since each character can only overlap with itself, encoded strings will overlap only when their constituent characters do.
+
+\end{enumerate}
+
+
+\newpage
+\item
+\begin{description}
+
+\item[Algorithm:]
+Given a graph $G = \langle V, E \rangle$ and an arbitrary ordering of vertices $\mathbf{V}$:
+\begin{code}
+$F := \text{all forward edges in $E$ (edges $u\rightarrow{}v$ such that $u$ preceeds $v$ in $\mathbf{V}$}$
+$B := \text{all backward edges in $E$ (edges $u\rightarrow{}v$ such that $u$ follows $v$ in $\mathbf{V}$}$
+return the larger of $F$ and $B$
+\end{code}
+
+\item[Correctness:]
+The only edges excluded from $F + B$ are length 1 cycles (edges $v \rightarrow v$) which cannot be in \O. Thus $\O \subseteq F + B$, and therefore either
+$$|F| \geq \frac{1}{2} |\O| \hspace{1em} \text{or} \hspace{1em} |B| \geq \frac{1}{2} |\O|.$$
+
+\end{description}
+
+
+\item
+\begin{description}
+
+\item[Algorithm:]
+Given a permutation $\pi = \langle \pi_1, \ldots, \pi_n \rangle$ of $\langle 1, \ldots, n \rangle$, define a {\bf straight} $\Pi_i$ to be the maximal consecutive sequence containing $\pi_i$ which is already in the correct order.
+
+In other words, $\Pi_i = \langle \pi_s, \pi_{s+1}, \ldots, \pi_{e-1}, \pi_e \rangle$ such that:
+\begin{enumerate}[i.]
+\item $s \leq i \leq e$
+\item $\pi_s = \pi_j - (j - s)$ for all $s \leq j \leq e$
+\item $\pi_{s-1} + 1 \neq \pi_i$ and $\pi_e + 1 \neq \pi_{e+1}$ (where $\pi_0 = 0$ and $\pi_{n+1} = n+1$)
+\end{enumerate}
+
+Now consider the following algorithm:
+\begin{code}
+return the number of unique straights in $\pi$
+\end{code}
+
+\item[Correctness:]
+Moving a single chunk can reduce the number of straights by at most 3, because a single move can:
+\begin{enumerate}[i.]
+\item Join the two straights surrounding the moved chunk (-1 straights)
+\item Join the moved chunk to its new left-neighbor (-1 straights)
+\item Join the moved chunk to its new right-neighbor (-1 straights)
+\end{enumerate}
+Since any solution must reduce the number of straights to 1 and can do so at most 3 at a time, the number of straights is a 3-approximation to \O.
+
+\end{description}
+
+
+\end{enumerate}
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
